@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Surr — Web (`surr-web`)
 
-## Getting Started
+Frontend for **Surr** (सुर) — a multi-language music streaming app with AI-powered discovery.
 
-First, run the development server:
+> Companion repo: [`surr-api`](https://github.com/devanimesh1/surr-api) (backend).
+> Architecture: see `design/HLD.md` and `design/LLD.md` in the workspace.
+
+## Stack
+
+- Next.js 16 (App Router, RSC) · React 19 · TypeScript strict
+- Tailwind CSS 4
+- Firebase Auth (Google + Email/password)
+- TanStack Query (server state) · Zustand (player + auth state)
+- `next-themes` (dark default + light toggle)
+- Vitest + React Testing Library
+- ESLint + Prettier + Husky + lint-staged
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env.local   # fill in Firebase + API base URL
+pnpm dev                     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | Purpose |
+|---|---|
+| `pnpm dev` | Start dev server |
+| `pnpm build` | Production build |
+| `pnpm start` | Run production build |
+| `pnpm lint` / `pnpm lint:fix` | ESLint |
+| `pnpm typecheck` | `tsc --noEmit` |
+| `pnpm test` / `pnpm test:run` | Vitest (watch / single-run) |
+| `pnpm format` / `pnpm format:check` | Prettier |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Routes
 
-## Learn More
+| Path | File | Notes |
+|---|---|---|
+| `/` | `src/app/(marketing)/page.tsx` | Landing |
+| `/login` | `src/app/(auth)/login/page.tsx` | Google + email/password |
+| `/home` | `src/app/(app)/home/page.tsx` | Authed home (placeholder) |
 
-To learn more about Next.js, take a look at the following resources:
+The `(app)` route group enforces auth on the client and renders the persistent
+sidebar + player shell around its children.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See `.env.example`. All client-exposed vars are prefixed `NEXT_PUBLIC_`.
 
-## Deploy on Vercel
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_FIREBASE_*` | Firebase Web SDK config |
+| `NEXT_PUBLIC_API_BASE_URL` | URL of the `surr-api` backend |
+| `NEXT_PUBLIC_GA4_MEASUREMENT_ID` | Optional analytics |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── (marketing)/page.tsx       # /
+│   ├── (auth)/login/page.tsx      # /login
+│   ├── (app)/
+│   │   ├── layout.tsx             # auth-gated shell (sidebar + player)
+│   │   └── home/page.tsx          # /home
+│   ├── layout.tsx                 # root layout, providers, fonts
+│   └── globals.css                # Surr palette tokens
+├── components/
+│   ├── layout/Sidebar.tsx
+│   ├── player/PlayerBar.tsx       # placeholder, wired in player PR
+│   └── ui/{button,theme-toggle}.tsx
+├── lib/
+│   ├── firebase.ts                # Web SDK init (auth only)
+│   ├── api.ts                     # typed fetch wrapper
+│   ├── cn.ts                      # clsx + tailwind-merge
+│   ├── queryClient.ts             # TanStack Query config
+│   ├── providers/AppProviders.tsx
+│   ├── hooks/useAuth.ts
+│   └── stores/auth.ts             # Zustand
+├── types/api.ts                   # mirrored from surr-api/shared
+└── test/setup.ts
+```
+
+## Theme
+
+Surr palette — dark default, light toggle. CSS variables driven by
+`data-theme="dark"|"light"` on the `<html>` element.
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-primary` | `#7C3AED` | `#9B6BFF` |
+| `--color-accent` | `#F0B429` | `#F0B429` |
+| `--color-bg` | `#FAF7F2` | `#0F0A1A` |
+| `--color-surface` | `#FFFFFF` | `#1A1228` |
+
+## CI
+
+`.github/workflows/ci.yml` runs format check, lint, typecheck, tests, and build
+on every PR.
