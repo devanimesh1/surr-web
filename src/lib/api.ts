@@ -1,5 +1,11 @@
 import { firebaseAuth } from "@/lib/firebase";
-import type { ApiError, ApiResult, MeResponse } from "@/types/api";
+import type {
+  ApiError,
+  ApiResult,
+  MeResponse,
+  OnboardingRequest,
+  OnboardingResponse,
+} from "@/types/api";
 
 export class ApiCallError extends Error {
   readonly code: string;
@@ -69,7 +75,8 @@ async function call<TRes>(
 
 export const api = {
   me: () => call<MeResponse>("GET", "/me"),
-  bootstrap: () => call<MeResponse>("POST", "/auth/bootstrap"),
+  submitOnboarding: (payload: OnboardingRequest) =>
+    call<OnboardingResponse>("POST", "/me/onboarding", payload),
 };
 
 export type Api = typeof api;

@@ -1,20 +1,17 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { firebaseAuth } from "@/lib/firebase";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useMe } from "@/lib/hooks/useMe";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { PlayerBar } from "@/components/player/PlayerBar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default function OnboardingLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { user, status } = useAuth();
+  const { status } = useAuth();
   const meQuery = useMe();
 
   useEffect(() => {
@@ -22,10 +19,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }, [status, router]);
 
   useEffect(() => {
-    if (meQuery.data?.needsOnboarding) router.replace("/onboarding");
+    if (meQuery.data && meQuery.data.needsOnboarding === false) {
+      router.replace("/home");
+    }
   }, [meQuery.data, router]);
-
-  const ready = status === "signed-in" && meQuery.data?.needsOnboarding === false;
 
   if (status === "signed-in" && meQuery.isError) {
     return (
@@ -46,7 +43,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!ready) {
+  const showLoading =
+    status !== "signed-in" || meQuery.isLoading || meQuery.data?.needsOnboarding === false;
+
+  if (showLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center text-sm text-[var(--color-text-dim)]">
         Loading…
@@ -56,22 +56,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar activePath={pathname} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3">
-            <div className="text-sm text-[var(--color-text-dim)]">{user?.email ?? user?.uid}</div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" onClick={() => signOut(firebaseAuth())}>
-                Sign out
-              </Button>
-            </div>
-          </header>
-          <main className="flex-1 overflow-auto p-6">{children}</main>
-        </div>
-      </div>
-      <PlayerBar />
+      <header className="flex items-center justify-between border-b border-[var(--color-border)] px-6 py-4">
+        <span className="text-xl font-bold tracking-tight">सर · Surr</span>
+        <ThemeToggle />
+      </header>
+      <main className="flex-1 px-4 py-10 sm:px-8">
+        <div className="mx-auto w-full max-w-2xl">{children}</div>
+      </main>
     </div>
   );
 }
