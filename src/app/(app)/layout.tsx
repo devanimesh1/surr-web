@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { firebaseAuth } from "@/lib/firebase";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useMe } from "@/lib/hooks/useMe";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { PlayerBar } from "@/components/player/PlayerBar";
 import { Button } from "@/components/ui/button";
@@ -14,12 +15,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, status } = useAuth();
+  const meQuery = useMe();
 
   useEffect(() => {
     if (status === "signed-out") router.replace("/login");
   }, [status, router]);
 
-  if (status !== "signed-in") {
+  useEffect(() => {
+    if (meQuery.data?.needsOnboarding) router.replace("/onboarding");
+  }, [meQuery.data, router]);
+
+  const ready = status === "signed-in" && meQuery.data?.needsOnboarding === false;
+
+  if (!ready) {
     return (
       <main className="flex min-h-screen items-center justify-center text-sm text-[var(--color-text-dim)]">
         Loading…

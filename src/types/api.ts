@@ -3,7 +3,33 @@
  * Keep in sync when updating the backend.
  */
 
-export type Language = "pa" | "hi" | "ta" | "te" | "ml" | "mr" | "bn" | "haryanvi" | "en" | "es";
+export const LANGUAGES = [
+  "pa",
+  "hi",
+  "ta",
+  "te",
+  "ml",
+  "mr",
+  "bn",
+  "haryanvi",
+  "en",
+  "es",
+] as const;
+
+export type Language = (typeof LANGUAGES)[number];
+
+export const LANGUAGE_LABELS: Record<Language, { native: string; english: string }> = {
+  pa: { native: "ਪੰਜਾਬੀ", english: "Punjabi" },
+  hi: { native: "हिन्दी", english: "Hindi" },
+  ta: { native: "தமிழ்", english: "Tamil" },
+  te: { native: "తెలుగు", english: "Telugu" },
+  ml: { native: "മലയാളം", english: "Malayalam" },
+  mr: { native: "मराठी", english: "Marathi" },
+  bn: { native: "বাংলা", english: "Bengali" },
+  haryanvi: { native: "हरियाणवी", english: "Haryanvi" },
+  en: { native: "English", english: "English" },
+  es: { native: "Español", english: "Spanish" },
+};
 
 export type Tier = "free" | "pro";
 export type Visibility = "private" | "friends" | "public";
@@ -73,4 +99,15 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: ApiError 
 export interface MeResponse {
   user: User;
   needsOnboarding: boolean;
+}
+
+export interface OnboardingRequest {
+  languages: Language[];
+  artists: string[];
+  moods?: string[];
+}
+
+export interface OnboardingResponse {
+  user: User;
+  needsOnboarding: false;
 }
