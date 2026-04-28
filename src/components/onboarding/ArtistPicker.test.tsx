@@ -39,6 +39,11 @@ describe("ArtistPicker", () => {
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
+  it("hides a suggestion already added with different casing", () => {
+    render(<ArtistPicker value={["diljit dosanjh"]} onChange={() => {}} />);
+    expect(screen.queryByRole("button", { name: /\+ Diljit Dosanjh/ })).toBeNull();
+  });
+
   it("adds via a suggestion button", () => {
     const onChange = vi.fn();
     render(<ArtistPicker value={[]} onChange={onChange} />);

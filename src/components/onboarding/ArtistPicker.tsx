@@ -97,19 +97,21 @@ export function ArtistPicker({ value, onChange, max = 20 }: Props) {
           Suggestions
         </p>
         <div className="flex flex-wrap gap-2">
-          {SUGGESTED.filter((s) => !value.includes(s)).map((s) => (
-            <Button
-              key={s}
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => add(s)}
-              disabled={value.length >= max}
-              className={cn("text-xs")}
-            >
-              + {s}
-            </Button>
-          ))}
+          {SUGGESTED.filter((s) => !value.some((v) => v.toLowerCase() === s.toLowerCase())).map(
+            (s) => (
+              <Button
+                key={s}
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => add(s)}
+                disabled={value.length >= max}
+                className={cn("text-xs")}
+              >
+                + {s}
+              </Button>
+            ),
+          )}
         </div>
       </div>
 

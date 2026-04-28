@@ -27,6 +27,25 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   const ready = status === "signed-in" && meQuery.data?.needsOnboarding === false;
 
+  if (status === "signed-in" && meQuery.isError) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <h1 className="text-lg font-semibold text-[var(--color-text)]">
+          Couldn&apos;t load your profile
+        </h1>
+        <p className="max-w-md text-sm text-[var(--color-text-dim)]">
+          {meQuery.error?.message ?? "Something went wrong while talking to the API."}
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={() => meQuery.refetch()}>Retry</Button>
+          <Button variant="ghost" onClick={() => signOut(firebaseAuth())}>
+            Sign out
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   if (!ready) {
     return (
       <main className="flex min-h-screen items-center justify-center text-sm text-[var(--color-text-dim)]">

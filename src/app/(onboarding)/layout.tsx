@@ -2,8 +2,11 @@
 
 import { useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { firebaseAuth } from "@/lib/firebase";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useMe } from "@/lib/hooks/useMe";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function OnboardingLayout({ children }: { children: ReactNode }) {
@@ -20,6 +23,25 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
       router.replace("/home");
     }
   }, [meQuery.data, router]);
+
+  if (status === "signed-in" && meQuery.isError) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <h1 className="text-lg font-semibold text-[var(--color-text)]">
+          Couldn&apos;t load your profile
+        </h1>
+        <p className="max-w-md text-sm text-[var(--color-text-dim)]">
+          {meQuery.error?.message ?? "Something went wrong while talking to the API."}
+        </p>
+        <div className="flex gap-2">
+          <Button onClick={() => meQuery.refetch()}>Retry</Button>
+          <Button variant="ghost" onClick={() => signOut(firebaseAuth())}>
+            Sign out
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   const showLoading =
     status !== "signed-in" || meQuery.isLoading || meQuery.data?.needsOnboarding === false;
