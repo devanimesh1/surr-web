@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useMe } from "@/lib/hooks/useMe";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { PlayerBar } from "@/components/player/PlayerBar";
+import { YouTubeMount } from "@/components/player/YouTubeMount";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -72,6 +73,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
       <PlayerBar />
+      <YouTubeMount />
     </div>
   );
 }
